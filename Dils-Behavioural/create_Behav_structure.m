@@ -1,46 +1,37 @@
 function create_Behav_structure
-clear
-clc
-
 %% organizaremos aquí los parametros para guardar los resultados.
 
-
-filtroMinMS = 100;
-filtroMaxMS = 1000;
-
-dataDir = 'C:\DILs_data\';  % el directorio donde están los Excel
-
-carpetaResultados  = 'C:\DILs_data\'; % la ruta de los resultados
-
-% declaramos filtros de tiempo de reacción
-
-
-d = dir(dataDir);
-groupName = {d.name}';
-groupName(ismember(groupName,{'.','..'})) = [];
-
-
-dils_data.meansRT = [];
-dils_data.group = [];
-dils_data.ACC = [];
-
-for i = 1 : length(groupName)
+    % hay que poner un minimo de tiempo que sea mayor que 0, para aplicar filtros más
+    % adelante
     
-    grupo = groupName{i};
-    new_route = [dataDir,grupo,'\'];
-    [means accs]= generarMedias(new_route, filtroMinMS, filtroMaxMS);
+    filtroMinMS = 1;
+    filtroMaxMS = 1000;
+
+    dataDir = 'C:\DILs_data\';  % el directorio donde están los Excel
+    carpetaResultados  = 'C:\DILs_data\'; % la ruta de los resultados
+
+    % declaramos filtros de tiempo de reacción
+    groupName = giveFoldersName(dataDir);
     
-    dils_data.meansRT{1, i} = means;
-    dils_data.group{1, i} = grupo;
-    dils_data.ACC{1, i} = accs;
+    dils_data.rawdata = [];
     
-end
+    for i = 1 : length(groupName)
+        disp(['working with : ', groupName{i}]);
+        [means , accs, names, rawdata]= generarMedias([dataDir,groupName{i},'\'], filtroMinMS, filtroMaxMS);
+      
+        dils_data.meansRT{1, i} = means;
+        dils_data.group{1, i} = groupName{i};
+        dils_data.ACC{1, i} = accs;
+        dils_data.namefiles{1,i} = names';
+        dils_data.rawdata= [ dils_data.rawdata rawdata];
+        
+    end
 
-filename = strcat(carpetaResultados, 'dils_structure');
+    filename = strcat(carpetaResultados, 'dils_structure');
 
-save(filename, 'dils_data', '-v7.3');
-
-disp(['hecho! tu fichero dils_structure está en :  ', carpetaResultados]);
+    save(filename, 'dils_data', '-v7.3');
+    
+    disp(['done! your file dils_structure is in :  ', carpetaResultados]);
 
 end
 
@@ -49,16 +40,33 @@ end
 
 %% auxiliar functions
 
-function [mediasGroup, accGroup] = generarMedias(new_route, fmin, fmax)
+function  groupName = giveFoldersName(dataDir)
+    d = dir(dataDir);
+    % delete everything is not a dir
+    esdir = [d.isdir];
+    elemsToRemove = find(esdir == 0);
+    d(elemsToRemove)= [];
+    
+    % we get the names and remove the actual and parent directory
+    groupName = {d.name}';
+    groupName(ismember(groupName,{'.','..'})) = [];
+end
 
-        mediasGroup = [];
-        accGroup = [];
+
+
+function [mediasGroup, accGroup, names, rawdataGroup] = generarMedias(new_route, fmin, fmax)
+
+    rawdataGroup = [];
+    mediasGroup = [];
+    accGroup = [];
 
     d = dir(new_route);
     esdir = [d.isdir];
     elemsToRemove = find(esdir == 1);
     d(elemsToRemove)= [];
     names = {d.name};
+    rts = {'Stimuli1.RT','Stimuli2.RT','Stimuli7.RT'};
+    accs = {'Stimuli1.ACC','Stimuli2.ACC','Stimuli7.ACC'};
     
     for file = 1: numel(names)
         clear medias a
@@ -66,102 +74,73 @@ function [mediasGroup, accGroup] = generarMedias(new_route, fmin, fmax)
         %leemos el fichero, y nos quedamos con las cabeceras de los datos
         [ndata, text, alldata] = xlsread(routeFile);
         VarName = text(2,:);
-
-        ColNum.FirstBlock = find(strcmp(VarName,'Stimuli1.RT'));
-        ColNum.SecondBlock = find(strcmp(VarName,'Stimuli2.RT'));
-        ColNum.LastBlock = find(strcmp(VarName,'Stimuli7.RT'));
-
-        ColNum.FirstBlockACC = find(strcmp(VarName,'Stimuli1.ACC'));
-        ColNum.SecondBlockACC = find(strcmp(VarName,'Stimuli2.ACC'));
-        ColNum.LastBlockACC = find(strcmp(VarName,'Stimuli7.ACC'));
-
-        FirstBlock = alldata(3:end,ColNum.FirstBlock);
-        SecondBlock = alldata(3:end,ColNum.SecondBlock);
-        LastBlock = alldata(3:end,ColNum.LastBlock);
-
-        FirstBlockACC = alldata(3:end,ColNum.FirstBlockACC);
-        SecondBlockACC = alldata(3:end,ColNum.SecondBlockACC);
-        LastBlockACC = alldata(3:end,ColNum.LastBlockACC);
-
-
-        FirstBlock(isnan(cell2mat(FirstBlock))) = [];
-        SecondBlock(isnan(cell2mat(SecondBlock))) = [];
-        LastBlock(isnan(cell2mat(LastBlock))) = [];
-
-        FirstBlockACC(isnan(cell2mat(FirstBlockACC))) = [];
-        SecondBlockACC(isnan(cell2mat(SecondBlockACC))) = [];
-        LastBlockACC(isnan(cell2mat(LastBlockACC))) = [];
-
-        columnSumsB1ACC = cell2mat(reshape(FirstBlockACC,[108,10]));
-        columnSumsB2ACC = cell2mat(reshape(SecondBlockACC,[108,10]));
-
-
-        columnSumsB1 = cell2mat(reshape(FirstBlock,[108,10]));
-        columnSumsB2 = cell2mat(reshape(SecondBlock,[108,10]));
-
-        LastBlock = cell2mat(LastBlock);
-        LastBlockACC = cell2mat(LastBlockACC);
-        medias = zeros(1,21);
         
-        [columnSumsB1, columnSumsB1ACC ] = filtrarDatosPorTiempos(columnSumsB1,columnSumsB1ACC, fmin, fmax);
-        [columnSumsB2, columnSumsB2ACC ] = filtrarDatosPorTiempos(columnSumsB2, columnSumsB2ACC, fmin, fmax);
-        [LastBlock, LastBlockACC ] = filtrarDatosPorTiempos(LastBlock, LastBlockACC, fmin, fmax);
-
-        for i = 1 : 10
-            clear grupo1 grupo2
-            grupo1 = columnSumsB1(:,i);
-            grupo1(isnan(grupo1(:))) = [];
-            medias(1,i) = mean(grupo1);
-            % ACC counter 
+        timesFiltered = [];
+        rawdata = [];
+        
+        for colStim = 1:3
+            rt = find(strcmp(VarName,rts{colStim}));
+            acc = find(strcmp(VarName,accs{colStim}));
             
-            grupo1ACC = columnSumsB1ACC(:,i);
-            grupo1ACC(isnan(grupo1ACC(:))) = [];
-            a(1,i) = length(find (grupo1ACC == 1));
-            % group 2
-            grupo2 = columnSumsB2(:,i);   
-            grupo2(isnan(grupo2(:))) = [];
-            medias(1,10 + i) = mean(grupo2);
-
-            grupo2ACC = columnSumsB2ACC(:,i);
-            grupo2ACC(isnan(grupo2ACC(:))) = [];
-            a(1,10 + i) = length(find (grupo2ACC == 1));            
+            block_items = alldata(3:end,rt);
+            block_acc = alldata(3:end,acc);
             
-        end
-        LastBlock(isnan(LastBlock(:))) = [];
-        medias(1,21) =mean(LastBlock);
+            block_items(isnan(cell2mat(block_items))) = [];
+
+            block_acc(isnan(cell2mat(block_acc))) = [];
+
+            block_items = cell2mat(reshape(block_items,[108,numel(block_items)/ 108]));
+            block_acc = cell2mat(reshape(block_acc,[108,numel(block_acc)/ 108]));
+            filtered_data = filterTimesByTimeAndACC(block_items,block_acc, fmin, fmax);
+            timesFiltered =[ timesFiltered filtered_data];
+            rawdata = [rawdata filtered_data];
+        end   % end subject
     
-        LastBlockACC(isnan(LastBlockACC(:))) = [];
-        a(1,21) = length(find (LastBlockACC == 1));   
-        
-        mediasGroup(file,:) = medias;
-        accGroup(file,:) = a;
-        
-        
-    end
+        [items_means,accFiltered] = matrix_nanmean(timesFiltered,1);
+        mediasGroup(file,:) = items_means;
+        accGroup(file,:) = accFiltered;   
+        rawdataGroup{file,1} = rawdata;
+    end % end group
 
 end
 
 
 
 
-function [colSumT, colSumACC ] = filtrarDatosPorTiempos(times,acc,filtroMinMS, filtroMaxMS)
+function [m,n] = matrix_nanmean(x,dim)
+    
+    nans = isnan(x);
+    x(nans) = 0;
+    
+    if nargin == 1 
+        n = sum(~nans);
+        n(n==0) = NaN;
+        m = sum(x) ./ n;
+    else
+        n = sum(~nans,dim);
+        n(n==0) = NaN;
+        m = sum(x,dim) ./ n;
+    end
 
-    %block tam
-    bloques = size(times,2);
+end 
 
-    for col = 1:bloques
+function colSumT = filterTimesByTimeAndACC(times,acc,filtroMinMS, filtroMaxMS)
+
+    %block tam filter by acc
+    times = times .* acc;
+
+    for col = 1:size(times,2)
         rt = times(:,col);    
-        resp = acc(:,col);
 
+        % replace outlier vals by NaN
         for row = 1: length(rt)
-            if rt(row) < filtroMinMS | rt(row) > filtroMaxMS | resp(row) == 0
-                resp(row,1) = NaN;
+            if rt(row) < filtroMinMS | rt(row) > filtroMaxMS
                 rt(row,1) = NaN;
             end
         end
-
+        % fill columns with rt and resp values
         colSumT(:,col) = rt;
-        colSumACC(:,col) = resp;
     end
 
 end
+
