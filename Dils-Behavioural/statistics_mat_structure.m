@@ -26,17 +26,17 @@ namefiles_g = dils_data.namefiles{1,indexGeneral};
 
 %% no terminado ( descomentar)
 
-% figure
-% hold on
-% plot(1:21,means_g)
-% legend(namefiles_g)
-% %lower limit
-% limsy=get(gca,'YLim');
-% set(gca,'Ylim',[0 limsy(2)]);
-% 
-% figure
-% hold on
-% bar(acc_g')
-% legend(namefiles_g)
+figure
+hold on
+plot(1:21,means_g)
+legend(namefiles_g)
+%lower limit
+limsy=get(gca,'YLim');
+set(gca,'Ylim',[0 limsy(2)]);
+
+figure
+hold on
+bar(acc_g')
+legend(namefiles_g)
 
 

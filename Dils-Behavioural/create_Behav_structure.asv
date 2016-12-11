@@ -1,16 +1,15 @@
 function create_Behav_structure
 %% first to all we need to set up the parameters for the analysis.
 
-    % you need to set a minimum time of 1, otherwise we can´t use filters
-    % later
+    % you need to set
     
     filtroMinMS = 1;
     filtroMaxMS = 1000;
 
-    dataDir = 'C:\DILs_data\';  % directory with folders which contains the excels.
-    carpetaResultados  = 'C:\DILs_data\'; % output of the .mat
+    dataDir = 'C:\DILs_data\';  % el directorio donde están los Excel
+    carpetaResultados  = 'C:\DILs_data\'; % la ruta de los resultados
 
-    % now starts the creation
+    % declaramos filtros de tiempo de reacción
     groupName = giveFoldersName(dataDir);
     
     dils_data.rawdata = [];
@@ -51,6 +50,7 @@ function  groupName = giveFoldersName(dataDir)
     groupName = {d.name}';
     groupName(ismember(groupName,{'.','..'})) = [];
 end
+
 
 
 function [mediasGroup, accGroup, names, rawdataGroup] = generarMedias(new_route, fmin, fmax)
@@ -104,6 +104,8 @@ function [mediasGroup, accGroup, names, rawdataGroup] = generarMedias(new_route,
 end
 
 
+
+
 function [m,n] = matrix_nanmean(x,dim)
     
     nans = isnan(x);
@@ -120,6 +122,7 @@ function [m,n] = matrix_nanmean(x,dim)
     end
 
 end 
+
 
 
 function colSumT = filterTimesByTimeAndACC(times,acc,filtroMinMS, filtroMaxMS)
