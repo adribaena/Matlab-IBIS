@@ -23,7 +23,7 @@ function create_Behav_structure
         dils_data.group{1, i} = groupName{i};
         dils_data.ACC{1, i} = accs;
         dils_data.namefiles{1,i} = names';
-        dils_data.rawdata= [ dils_data.rawdata rawdata];
+        dils_data.rawdata{1,i}= rawdata;
         
     end
 

@@ -7,7 +7,7 @@ clc;
 
 % 1 ) decir la ruta del fichero, y el nombre de lo que necesitamos
 
-ruta = 'C:\Users\Antonio\Desktop\EEG\';
+ruta = 'C:\Users\Antonio\Desktop\Matlab-IBIS\Dils-EEG\';
 
 nombreFicheroEntrada = 'Marcadores047-B1-5(sin 5)';  % original, no es de ningún tipo
 nombreFicheroSalida = 'paco';   % salida

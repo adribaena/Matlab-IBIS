@@ -4,7 +4,7 @@ clc
 
 dataDir = 'C:\DILs_data\';
 % define group
-group = 'Pacientes';
+group = 'Controles';
 
 % cargar un dils_structure.mat
 load([dataDir,'dils_structure.mat']);
@@ -15,7 +15,7 @@ indexGeneral = find(strcmp(dils_data.group, group));
 disp('¡¡ gogogo !!');
 clear dataDir
 
-rawdata_g = dils_data.rawdata(:,indexGeneral);
+rawdata_g = dils_data.rawdata{1,indexGeneral};
 acc_g = dils_data.ACC{1,indexGeneral};
 means_g = dils_data.meansRT{1,indexGeneral};
 namefiles_g = dils_data.namefiles{1,indexGeneral};
@@ -38,5 +38,10 @@ figure
 hold on
 bar(acc_g')
 legend(namefiles_g)
+
+%%
+
+
+
 
 
