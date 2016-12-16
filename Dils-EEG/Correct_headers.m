@@ -1,4 +1,4 @@
-% autores: Antonio Rodríguez Baena (IBIS), ...
+%% autores: Antonio Rodríguez Baena (IBIS), ...
 
 clear;
 clc;
@@ -14,29 +14,18 @@ rutaSalida = 'C:\Users\Antonio\Desktop\';
 nombreFicheroEntrada = 'DILs_SMI047_B1-5.vmrk.vmrk';  % original, no es de ningún tipo
 excelDeDosColumnas = 'ficheroDeDosColumnas.xlsx';  % excel de 2 columnas
 
-% 2 ) juntar la ruta y el nombre, y eso se hace con los corchetes. Se pegan
-% los textos que metes dentro de los corchetes si los separas por coma.
-
 rutaCompletaEntrada = [ruta, nombreFicheroEntrada];
 rutaCompletaSalida = [rutaSalida, nombreFicheroEntrada];
 
-% 3 ) leemos el Excel, y tenemos 3 cosas: los datos, las cabeceras y los
-% datos junto a las cabeceras (fíjate en el orden de lo que nos devuelve
-% xlsread.
+
 
 rutaExcel = [ruta,excelDeDosColumnas];
 [datos,cabeceras,alldata] = xlsread(rutaExcel);
 
 
-% vamos a preparar un código para leer linea a línea un fichero. Esto lo
-% usaremos para cuando vayamos a modificar un valor de dentro del fichero,
-% o crear otro en que guardemos un resultado.
 
 infoFicheroEntrada = fopen(rutaCompletaEntrada, 'r'); % pregunta, ¿qué es r y w de fopen?
 infoFicheroSalida = fopen(rutaCompletaSalida, 'w');
-
-% si no podemos abrir un fichero sin extension el programa termina con return ( los que no son txt, pdf,
-% ...), tienes que saber que si los intentamos abrir y no se pueden, devuelve un número negativo.
 
 if infoFicheroEntrada < 0
     disp('ruta mala, colega');
@@ -46,7 +35,7 @@ end
 
 
 
-%% comienzan los deberes ...
+%% comienza el bucle ...
 for v = 1 : 12
     cabeceras = fgetl(infoFicheroEntrada);
     if v == 11
@@ -72,9 +61,7 @@ while ischar(proximaLinea)
         voyPor = voyPor + 1;        
         lineaSeparadaPorComa{1,1} = ['Mk',num2str(voyPor),'=Stimulus'];
         fprintf(infoFicheroSalida, [strjoin(lineaSeparadaPorComa,','),'\n']);
-        % vamos a escribir en el fichero de salida
         if strcmp(lineaSeparadaPorComa{2},'S  1') ~= 0 | strcmp(lineaSeparadaPorComa{2},'S  2') ~= 0 | strcmp(lineaSeparadaPorComa{2},'S  3') ~= 0 | strcmp(lineaSeparadaPorComa{2},'S  4') ~= 0
-            % buscamos en el Excel la posición
             punteroExcel = punteroExcel + 1;
             puntoDelMarcador = str2num(lineaSeparadaPorComa{1,3});
             heAcertado = datos(punteroExcel,1);
@@ -94,6 +81,8 @@ while ischar(proximaLinea)
                 lineaSeparadaPorComa{1,1} = ['Mk',num2str(voyPor),'=Stimulus'];
                 fprintf(infoFicheroSalida, [strjoin(lineaSeparadaPorComa,','),'\n']); % ¿qué es strjoin? 
             end
+
+    
         end % cierro 1 - 4
     end% cierro 5 - 6
     disp(proximaLinea);
