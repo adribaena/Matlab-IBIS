@@ -11,7 +11,7 @@ frecuencia = 5000;
 ruta = 'C:\Users\Antonio\Desktop\EEG\EEG SMI047\';
 rutaSalida = 'C:\Users\Antonio\Desktop\';
 
-nombreFicheroEntrada = 'DILs_SMI047_B1-5.vmrk.vmrk';  % original, no es de ningún tipo
+nombreFicheroEntrada = 'DILs_SMI047_B1-5.vmrk.vmrk';  % original, 
 excelDeDosColumnas = 'ficheroDeDosColumnas.xlsx';  % excel de 2 columnas
 
 rutaCompletaEntrada = [ruta, nombreFicheroEntrada];
@@ -26,6 +26,7 @@ rutaExcel = [ruta,excelDeDosColumnas];
 
 infoFicheroEntrada = fopen(rutaCompletaEntrada, 'r'); % pregunta, ¿qué es r y w de fopen?
 infoFicheroSalida = fopen(rutaCompletaSalida, 'w');
+
 
 if infoFicheroEntrada < 0
     disp('ruta mala, colega');
@@ -94,5 +95,5 @@ end
 fclose(infoFicheroEntrada);  % ¿para qué sirve fclose?
 fclose(infoFicheroSalida);
 
-disp(['Hecho! tu fichero ''',nombreFicheroEntrada,'''  está en ', ruta]); % ¿ qué son esas tres comillas juntas -- > '''  ?
+disp(['Hecho! tu fichero ''',nombreFicheroEntrada,'''  está en ', rutaSalida]); % ¿ qué son esas tres comillas juntas -- > '''  ?
 
